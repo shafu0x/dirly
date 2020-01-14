@@ -7,7 +7,8 @@ Resize all images inside `in` with a `.png` extension and save it to `out`.
 ~~~
 from dirly import dirly as d
 
-@d(in='/Desktop/Images', out='/Desktop/Resized_Images', extensions=['png'])
-def resize(path, s):
-  return Image.open(path).resize(size)
+@d(i='/Desktop/Images', o='/Desktop/Resized_Images', ext=['png'])
+def resize(p, s):
+  """Open, resize and return `PIL.Image` given by path `p` to size `s`""" 
+  return Image.open(path).resize(s)
 ~~~
