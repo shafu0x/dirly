@@ -4,6 +4,8 @@ class dirly:
     def __init__(self, i, o=None, ext=None):
         self.i, self.o = i, o
         self.ext = ext
+        if o and not os.path.exists(o):
+            os.mkdir(o)
     def __call__(self, *args):
         def fn(*kwargs):
             o_s = []
@@ -13,4 +15,14 @@ class dirly:
                 else:       o_s.append(o)
             if not o_s: return None
             else:       return o_s
-        return fn 
+        return fn
+
+class img_dirly:
+    """Dirly `PIL.Image` objs"""
+    def __init__(dirly):
+        pass
+
+class txt_dirly:
+    """Dirly txt files"""
+    def __init__(dirly):
+        pass
