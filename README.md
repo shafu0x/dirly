@@ -1,13 +1,14 @@
 # dirly
-Eesily map your function to all files inside a directory.
+Quickly map any function to every item in a directory (verb: to dirl). You can 'dirl'
+images and text files (more are coming!).
 
 ### How to use
 
 ~~~
-from dirly import dirly as d
+from dirly import img_dirly
 
-@d(i='/Desktop/images', o='/Desktop/resized-images', ext=['png', 'jpg'])
-def resize(p, s):
-  """Open, resize and return `PIL.Image` given by path `p` to size `s`""" 
-  return Image.open(path).resize(s)
+@img_dirly(IN_DIR, OUT_DIR, ext=['.png']) 
+def resize(_fp, sz):
+    """Open, resize and save files with `ext` in `IN_DIR` to `OUT_DIR`"""
+    return Image.open(_fp).resize(sz)
 ~~~
