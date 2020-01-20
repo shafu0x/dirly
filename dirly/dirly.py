@@ -62,13 +62,20 @@ class dirly:
         return None
 
 class img_dirly(dirly):
-    "Dirl `PIL.Image` objs"
+    "Dirl `PIL.Image` or img_arr objs"
     def __init__(self, i, o=None, ext=None, recurse=False):
         super().__init__(i, o, ext, recurse)
         if not self.ext: img_extensions
 
     def save(self, fp, i):
-        i.save(fp)
+        if isinstance(i, PIL.Image): img_dirly._save_pil(fp, i)
+        else:                        img_dirly._save_cv2(fp, i)                     
+
+    @classmethod
+    def _save_pil(fp, i): i.save(fp)
+
+    @classmethod
+    def _save_arr(fp, i): cv2.save()
 
 class txt_dirly(dirly):
     "Dirl txt files"
