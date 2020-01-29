@@ -1,5 +1,7 @@
 import os, mimetypes
 from pathlib import Path
+import numpy as np
+from PIL import Image
 
 img_extensions = set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
 
@@ -15,48 +17,50 @@ def _get_files(parent, p, f, extensions):
 
 def get_files(path, extensions=None, recurse=False, exclude=None, include=None,
                 presort=False, followlinks=False):
-"Return list of files in `path` that have a suffix in `extensions`; optionally `recurse`."
-if recurse:
-    res = []
-    for i, (p, d, f) in enumerate(os.walk(path, followlinks=followlinks)):
-        # skip hidden dirs
-        if include is not None and i == 0:
-            d[:] = [o for o in d if o in include]
-        elif exclude is not None and i == 0:
-            d[:] = [o for o in d if o not in exclude]
-        else:
-            d[:] = [o for o in d if not o.startswith('.')]
-        res += _get_files(path, p, f, extensions)
-    if presort:
-        res = sorted(
-            res, key=lambda p: _path_to_same_str(p), reverse=False)
-    return res
-else:
-    f = [o.name for o in os.scandir(path) if o.is_file()]
-    res = _get_files(path, path, f, extensions)
-    if presort:
-        res = sorted(
-            res, key=lambda p: _path_to_same_str(p), reverse=False)
-    return res
+    "Return list of files in `path` that have a suffix in `extensions`; optionally `recurse`."
+    if recurse:
+        res = []
+        for i, (p, d, f) in enumerate(os.walk(path, followlinks=followlinks)):
+            # skip hidden dirs
+            if include is not None and i == 0:
+                d[:] = [o for o in d if o in include]
+            elif exclude is not None and i == 0:
+                d[:] = [o for o in d if o not in exclude]
+            else:
+                d[:] = [o for o in d if not o.startswith('.')]
+            res += _get_files(path, p, f, extensions)
+        if presort:
+            res = sorted(
+                res, key=lambda p: _path_to_same_str(p), reverse=False)
+        return res
+    else:
+        f = [o.name for o in os.scandir(path) if o.is_file()]
+        res = _get_files(path, path, f, extensions)
+        if presort:
+            res = sorted(
+                res, key=lambda p: _path_to_same_str(p), reverse=False)
+        return res
 
 class dirly:
     def __init__(self, i, o=None, ext=None, recurse=False):
         self.i = Path(i)
         if o:
             self.o = Path(o)
-            if not self.o.exists(): os.mkdir(o)
+            if not self.o.is_dir(): os.mkdir(o)
+        else: self.o = None
         self.ext = ext
         self.recurse = recurse
 
     def __call__(self, *args):
         def fn(*kwargs):
-            o_s = []
-            for fp in get_files(self.i, self.ext, self.recurse)
-                o = args[0](self.i/fp, kwargs[0])
-                o_s.append(fp, o)
-            if not self.o = return o_s
-            for o in o_s: self.save(self.i/fp, o)  # TODO: Change parent dir.
+            fps = get_files(self.i, self.ext, self.recurse)
+            items = [args[0](str(fp), kwargs[0]) for fp in fps]
+            if self.o: self._save(fps, items)
+            else     : return items
         return fn
+
+    def _save(self, fps, items):
+        for fp, o in zip(fps, items): self.save(self.o/fp.name, o)
 
     def save(self, fp, i):
         return None
@@ -68,14 +72,8 @@ class img_dirly(dirly):
         if not self.ext: img_extensions
 
     def save(self, fp, i):
-        if isinstance(i, PIL.Image): img_dirly._save_pil(fp, i)
-        else:                        img_dirly._save_cv2(fp, i)                     
-
-    @classmethod
-    def _save_pil(fp, i): i.save(fp)
-
-    @classmethod
-    def _save_arr(fp, i): cv2.save()
+        if isinstance(i, np.ndarray): Image.fromarray(i).save(fp)
+        else                        : i.save(fp)                    
 
 class txt_dirly(dirly):
     "Dirl txt files"
