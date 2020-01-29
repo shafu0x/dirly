@@ -1,4 +1,4 @@
-import os, mimetypes
+import os, mimetypes, inspect
 from pathlib import Path
 import numpy as np
 from PIL import Image
@@ -53,12 +53,16 @@ class dirly:
         self.recurse = recurse
 
     def __call__(self, *args):
+        if not dirly._check_signature(args[0]): raise Exception('`_fp` is not defined')
         def fn(*kwargs):
             fnames = get_files(self.i, self.ext, self.recurse)
             items = [args[0](str(fname), kwargs[0]) for fname in fnames]
             if self.o: self._save(fnames, items)
             else     : return items
         return fn
+
+    @staticmethod
+    def _check_signature(fn): return '_f' in inspect.getfullargspec(fn).args
 
     def _save(self, fnames:List[str], items:List[str]):
         "Save every `item` in `items` to its `fname` in `fnames`"

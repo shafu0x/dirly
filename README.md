@@ -26,7 +26,7 @@ def resize(_fp, sz):
 resize((300, 300))
 ~~~
 
-```_fp``` is a special placeholder that dirly uses internaly. Use it to tell dirly where to input the full path to your file.
+```_f``` is a special placeholder that dirly uses internaly. Use it to tell dirly where to input the full path to your file.
 
 If you just want to return the elements as a list and don't want to save them to a directory, simply set o=None.
 
