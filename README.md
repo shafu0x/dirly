@@ -8,7 +8,10 @@ for f in os.listdir(YOUR_DIR):
     your_function(os.path.join(YOUR_DIR, f))
 ~~~
 
+
 every single time sucks and I agree. Simply write your function to handle a single file and dirly will take care of mapping it to every element in your directory. 
+
+I use this [abbreviations](https://docs.fast.ai/dev/abbr.html):
 
 ### How to use
 

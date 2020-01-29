@@ -3,6 +3,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from typing import List
+
 img_extensions = set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
 
 def _get_files(parent, p, f, extensions):
@@ -42,38 +44,40 @@ def get_files(path, extensions=None, recurse=False, exclude=None, include=None,
         return res
 
 class dirly:
-    def __init__(self, i, o=None, ext=None, recurse=False):
+    "Dirly base class. Inherit from it to create your own dirlys."
+    def __init__(self, i:str, o:str=None, ext:List[str]=None, recurse:bool=False):
+        "Apply a func to every file in `i`; optionally save them to `o`."
         self.i = Path(i)
-        if o:
-            self.o = Path(o)
-            if not self.o.is_dir(): os.mkdir(o)
-        else: self.o = None
+        self.o = Path(o) if o else None
         self.ext = ext
         self.recurse = recurse
 
     def __call__(self, *args):
         def fn(*kwargs):
-            fps = get_files(self.i, self.ext, self.recurse)
-            items = [args[0](str(fp), kwargs[0]) for fp in fps]
-            if self.o: self._save(fps, items)
+            fnames = get_files(self.i, self.ext, self.recurse)
+            items = [args[0](str(fname), kwargs[0]) for fname in fnames]
+            if self.o: self._save(fnames, items)
             else     : return items
         return fn
 
-    def _save(self, fps, items):
-        for fp, o in zip(fps, items): self.save(self.o/fp.name, o)
+    def _save(self, fnames:List[str], items:List[str]):
+        "Save every `item` in `items` to its `fname` in `fnames`"
+        if not self.o.is_dir(): os.mkdir(self.o)
+        for fname, item in zip(fnames, items): self.save(self.o/fname.name, item)
 
-    def save(self, fp, i):
-        return None
+    def save(self, fname:str, i): raise Exception('Only call `save` from a dirly subclass.')
 
 class img_dirly(dirly):
-    "Dirl `PIL.Image` or img_arr objs"
-    def __init__(self, i, o=None, ext=None, recurse=False):
+    "Dirl `PIL.Image` or image `np.ndarray` objects."
+    def __init__(self, i:str, o:str=None, ext:List[str]=None, recurse:bool=False):
         super().__init__(i, o, ext, recurse)
         if not self.ext: img_extensions
 
-    def save(self, fp, i):
-        if isinstance(i, np.ndarray): Image.fromarray(i).save(fp)
-        else                        : i.save(fp)                    
+    def save(self, fname:str, i):
+        if isinstance(i, np.ndarray): Image.fromarray(i).save(fname)
+        else                        : i.save(fname)
+
+class arr_dirly(dirly):pass                    
 
 class txt_dirly(dirly):
     "Dirl txt files"
@@ -81,5 +85,5 @@ class txt_dirly(dirly):
         super().__init__(i, ext)
         if not self.ext: ['txt']
 
-    def save(fp, i):
+    def save(fname, i):
         pass # TODO
