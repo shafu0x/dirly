@@ -1,1 +1,1 @@
-from dirly import dirly
+from .dirly import img_dirly
