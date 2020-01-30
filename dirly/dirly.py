@@ -1,11 +1,10 @@
 import os, mimetypes, inspect
-from pathlib import Path
 import numpy as np
+from pathlib import Path
 from PIL import Image
 
-from typing import List
-
-img_extensions = set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
+from types import FunctionType
+from typing import List, Union, Any
 
 def _get_files(parent, p, f, extensions):
     p = Path(p) 
@@ -45,7 +44,7 @@ def get_files(path, extensions=None, recurse=False, exclude=None, include=None,
 
 class dirly:
     "Dirly base class. Inherit from it to create your own dirlys."
-    def __init__(self, i:str, o:str=None, ext:List[str]=None, recurse:bool=False):
+    def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
         "Apply a func to every file in `i`; optionally save them to `o`."
         self.i = Path(i)
         self.o = Path(o) if o else None
@@ -62,22 +61,22 @@ class dirly:
         return fn
 
     @staticmethod
-    def _check_signature(fn): return '_f' in inspect.getfullargspec(fn).args
+    def _check_signature(fn:FunctionType): return '_f' in inspect.getfullargspec(fn).args
 
     def _save(self, fnames:List[str], items:List[str]):
         "Save every `item` in `items` to its `fname` in `fnames`"
         if not self.o.is_dir(): os.mkdir(self.o)
         for fname, item in zip(fnames, items): self.save(self.o/fname.name, item)
 
-    def save(self, fname:str, i): raise Exception('Only call `save` from a dirly subclass.')
+    def save(self, fname:str, i:Any): raise Exception('Only call `save` from a dirly subclass.')
 
 class img_dirly(dirly):
-    "Dirl `PIL.Image` or image `np.ndarray` objects."
-    def __init__(self, i:str, o:str=None, ext:List[str]=None, recurse:bool=False):
+    "Dirl `PIL.Image` or image `np.ndarray` items."
+    def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
         super().__init__(i, o, ext, recurse)
-        if not self.ext: img_extensions
+        if not self.ext: set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
 
-    def save(self, fname:str, i):
+    def save(self, fname:str, i:Union[Image.Image, np.ndarray]):
         if isinstance(i, np.ndarray): Image.fromarray(i).save(fname)
         else                        : i.save(fname)
 
