@@ -1,9 +1,7 @@
-# dirly
-
 !['dirly'](logo/logo.png)
 
-Quickly map your function to every file in a directory (verb: to dirl). You can "dirl"
-images and text files (more are coming soon!).
+Quickly map your function to every file in a directory (verb: to dirl). You can "*dirl*"
+images and text files (you can easily add your own).
 
 Do you have a function that you need to apply to every file in a directory? Writing the same
 
@@ -14,8 +12,6 @@ for f in os.listdir(YOUR_DIR):
 
 
 every single time sucks and I agree. Simply write your function to handle a single file and dirly will take care of mapping it to every element in your directory. 
-
-I use these [abbreviations](https://docs.fast.ai/dev/abbr.html).
 
 ### How to use
 
@@ -44,3 +40,5 @@ def resize(_fp, sz):
 
 resized_imgs = resize((300, 300))
 ~~~
+
+This will return a list of resized PIL.Image objects.
