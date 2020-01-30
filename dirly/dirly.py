@@ -2,9 +2,9 @@ import os, mimetypes, inspect
 import numpy as np
 from pathlib import Path
 from PIL import Image
+from typing import List, Union, Any, Callable
 
-from types import FunctionType
-from typing import List, Union, Any
+FILE_PLACEHOLDER = '_f'
 
 def _get_files(parent, p, f, extensions):
     p = Path(p) 
@@ -48,11 +48,10 @@ class dirly:
         "Apply a func to every file in `i`; optionally save them to `o`."
         self.i = Path(i)
         self.o = Path(o) if o else None
-        self.ext = ext
-        self.recurse = recurse
+        self.ext, self.recurse = ext, recurse
 
     def __call__(self, *args):
-        if not dirly._check_signature(args[0]): raise Exception('`_fp` is not defined')
+        if not dirly._check_signature(args[0]): raise Exception(f'{FILE_PLACEHOLDER} is not defined')
         def fn(*kwargs):
             fnames = get_files(self.i, self.ext, self.recurse)
             items = [args[0](str(fname), kwargs[0]) for fname in fnames]
@@ -61,10 +60,10 @@ class dirly:
         return fn
 
     @staticmethod
-    def _check_signature(fn:FunctionType): return '_f' in inspect.getfullargspec(fn).args
+    def _check_signature(fn:Callable) -> bool: return FILE_PLACEHOLDER in inspect.getfullargspec(fn).args
 
-    def _save(self, fnames:List[str], items:List[str]):
-        "Save every `item` in `items` to its `fname` in `fnames`"
+    def _save(self, fnames:List[str], items:List[Any]):
+        "Save every `item` in `items` to `o` with given `fname`."
         if not self.o.is_dir(): os.mkdir(self.o)
         for fname, item in zip(fnames, items): self.save(self.o/fname.name, item)
 
