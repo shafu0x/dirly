@@ -7,4 +7,5 @@ setup(name='dirly',
       author='Sharif Elfouly',
       author_email='selfouly@gmail.com',
       license='MIT',
-      packages=['dirly'])
+      packages=['dirly'],
+      install_requires=['numpy', 'pillow'])
