@@ -6,10 +6,6 @@ from typing import List, Union, Any, Callable
 
 FILE_PLACEHOLDER = '_f'
 
-def _get_f_ext(type:str) -> List:
-    "Get all extensions for a `type`."
-    return set(k for k, v in mimetypes.types_map.items() if v.startswith(f'{type}/'))
-
 def _get_files(parent, p, f, extensions):
     p = Path(p) 
     if isinstance(extensions, str):
@@ -48,11 +44,13 @@ def get_files(path, extensions=None, recurse=False, exclude=None, include=None,
 
 class dirly:
     "Dirly base class. Inherit from it to create your own dirlys."
-    def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
+    def __init__(self, type:str, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
         "Apply a func to every file in `i`; optionally save them to `o`."
         self.i = Path(i)
         self.o = Path(o) if o else None
-        self.ext, self.recurse = ext, recurse
+        if not ext: self.ext = set(k for k, v in mimetypes.types_map.items() if v.startswith(f'{type}/'))
+        else      : self.ext = ext
+        self.recurse = recurse
 
     def __call__(self, *args):
         if not dirly._check_signature(args[0]): raise Exception(f'{FILE_PLACEHOLDER} is not defined')
@@ -76,20 +74,22 @@ class dirly:
 class img_dirly(dirly):
     "Dirl `PIL.Image` or `np.ndarray` images."
     def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
-        super().__init__(i, o, ext, recurse)
-        if not self.ext: self.ext = set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
+        super().__init__('image', i, o, ext, recurse)
 
     def save(self, fname:str, i:Union[Image.Image, np.ndarray]):
         if isinstance(i, np.ndarray): Image.fromarray(i).save(fname)
         else                        : i.save(fname)
 
-class arr_dirly(dirly):pass                    
+class video_dirly(dirly):
+    "Dirl videos"
+    def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
+        super().__init__('video', i, o, ext, recurse)
+
+    def save(self, fname, i): pass
 
 class txt_dirly(dirly):
     "Dirl txt based files"
     def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
-        super().__init__(i, o, ext, recurse)
-        if not self.ext:
-            self.ext = _get_f_ext('type/')
+        super().__init__('test', i, o, ext, recurse)
 
     def save(self, fname, i): pass
