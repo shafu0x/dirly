@@ -6,6 +6,10 @@ from typing import List, Union, Any, Callable
 
 FILE_PLACEHOLDER = '_f'
 
+def _get_f_ext(type:str) -> List:
+    "Get all extensions for a `type`."
+    return set(k for k, v in mimetypes.types_map.items() if v.startswith(f'{type}/'))
+
 def _get_files(parent, p, f, extensions):
     p = Path(p) 
     if isinstance(extensions, str):
@@ -70,10 +74,10 @@ class dirly:
     def save(self, fname:str, i:Any): raise Exception('Only call `save` from a dirly subclass.')
 
 class img_dirly(dirly):
-    "Dirl `PIL.Image` or image `np.ndarray` items."
+    "Dirl `PIL.Image` or `np.ndarray` images."
     def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
         super().__init__(i, o, ext, recurse)
-        if not self.ext: set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
+        if not self.ext: self.ext = set(k for k,v in mimetypes.types_map.items() if v.startswith('image/'))
 
     def save(self, fname:str, i:Union[Image.Image, np.ndarray]):
         if isinstance(i, np.ndarray): Image.fromarray(i).save(fname)
@@ -82,10 +86,10 @@ class img_dirly(dirly):
 class arr_dirly(dirly):pass                    
 
 class txt_dirly(dirly):
-    "Dirl txt files"
-    def __init__(self, i, o=None, recurse=False):
-        super().__init__(i, ext)
-        if not self.ext: ['txt']
+    "Dirl txt based files"
+    def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
+        super().__init__(i, o, ext, recurse)
+        if not self.ext:
+            self.ext = _get_f_ext('type/')
 
-    def save(fname, i):
-        pass # TODO
+    def save(self, fname, i): pass
