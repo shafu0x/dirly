@@ -90,6 +90,6 @@ class video_dirly(dirly):
 class txt_dirly(dirly):
     "Dirl txt based files"
     def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
-        super().__init__('test', i, o, ext, recurse)
+        super().__init__('text', i, o, ext, recurse)
 
     def save(self, fname, i): pass
