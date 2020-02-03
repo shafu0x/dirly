@@ -1,14 +1,26 @@
+import os
 from dirly import txt_dirly
 
-IN_DIR = './tests/texts/data/in'
-OUT_DIR = './tests/texts/data/out'
+IN_DIR = './tests/data/text/in'
+OUT_DIR = './tests/data/text/out'
 
-@txt_dirly(i=IN_DIR, o=OUT_DIR)
-def test_txt_dirly_with_o_dir(_f):
-    with open(_f, 'w') as f:
-        f.write('txt_dirly is very cool!')
+def test_txt_dirly_without_o_dir():
 
+    @txt_dirly(i=IN_DIR)    
+    def write_to_file(_f, txt):
+        with open(_f, 'w') as f:
+            f.write(txt)
 
-def test_txt_dirly_without_o_dir(): pass
+    write_to_file('txt_dirly is very cool!')
 
-test_txt_dirly_with_o_dir()
+def test_txt_dirly_with_o_dir():
+
+    @txt_dirly(i=IN_DIR, o=OUT_DIR)    
+    def write_to_file(_f, txt):
+        with open(_f, 'w') as f:
+            f.write(txt)
+            return f
+
+    write_to_file('txt_dirly is very cool!')
+
+    assert len(os.listdir(OUT_DIR)) > 0
