@@ -6,19 +6,19 @@ from typing import List, Union, Any, Callable
 
 FILE_PLACEHOLDER = '_f'
 
-def _get_files(parent, p, f, extensions):
+def _get_files(parent, p, f, ext):
     p = Path(p) 
-    if isinstance(extensions, str):
-        extensions = [extensions]
+    if isinstance(ext, str):
+        ext = [ext]
     low_extensions = [e.lower()
-                      for e in extensions] if extensions is not None else None
+                      for e in ext] if ext is not None else None
     res = [p/o for o in f if not o.startswith('.')
-           and (extensions is None or f'.{o.split(".")[-1].lower()}' in low_extensions)]
+           and (ext is None or f'.{o.split(".")[-1].lower()}' in low_extensions)]
     return res
 
-def get_files(path, extensions=None, recurse=False, exclude=None, include=None,
+def get_files(path, ext=None, recurse=False, exclude=None, include=None,
                 presort=False, followlinks=False):
-    "Return list of files in `path` that have a suffix in `extensions`; optionally `recurse`."
+    "Return list of files in `path` that have a suffix in `ext`; optionally `recurse`."
     if recurse:
         res = []
         for i, (p, d, f) in enumerate(os.walk(path, followlinks=followlinks)):
@@ -29,14 +29,14 @@ def get_files(path, extensions=None, recurse=False, exclude=None, include=None,
                 d[:] = [o for o in d if o not in exclude]
             else:
                 d[:] = [o for o in d if not o.startswith('.')]
-            res += _get_files(path, p, f, extensions)
+            res += _get_files(path, p, f, ext)
         if presort:
             res = sorted(
                 res, key=lambda p: _path_to_same_str(p), reverse=False)
         return res
     else:
         f = [o.name for o in os.scandir(path) if o.is_file()]
-        res = _get_files(path, path, f, extensions)
+        res = _get_files(path, path, f, ext)
         if presort:
             res = sorted(
                 res, key=lambda p: _path_to_same_str(p), reverse=False)
@@ -89,7 +89,12 @@ class video_dirly(dirly):
 
 class txt_dirly(dirly):
     "Dirl txt based files"
-    def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
+    def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
         super().__init__('text', i, o, ext, recurse)
 
-    def save(self, fname, i): print(fname), print(type(i))
+    def save(self, fname, i): 
+        """
+        Copy everything in the file to a new file.
+        Save this file inplace or in new location.
+        """
+        print(fname), print(type(i))
