@@ -57,17 +57,17 @@ class dirly:
         def fn(*kwargs):
             fnames = get_files(self.i, self.ext, self.recurse)
             items = [args[0](str(fname), kwargs[0]) for fname in fnames]
-            if self.o: self._save(fnames, items)
-            else     : return items
+            if self.o: self._save(self.o, fnames, items)
+            else     : self._save(self.i, fnames, items)
         return fn
 
     @staticmethod
     def _check_signature(fn:Callable) -> bool: return FILE_PLACEHOLDER in inspect.getfullargspec(fn).args
 
-    def _save(self, fnames:List[str], items:List[Any]):
-        "Save every `item` in `items` to `o` with given `fname`."
-        if not self.o.is_dir(): os.mkdir(self.o)
-        for fname, item in zip(fnames, items): self.save(self.o/fname.name, item)
+    def _save(self, dir:Union[Path, str], fnames:List[str], items:List[Any]):
+        "Save every `item` in `items` to `dir` with given `fname`."
+        if not dir.is_dir(): os.mkdir(dir)
+        for fname, item in zip(fnames, items): self.save(dir/fname.name, item)
 
     def save(self, fname:str, i:Any): raise Exception('Only call `save` from a dirly subclass.')
 
@@ -92,4 +92,4 @@ class txt_dirly(dirly):
     def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
         super().__init__('text', i, o, ext, recurse)
 
-    def save(self, fname, i): pass
+    def save(self, fname, i): print(fname), print(type(i))
