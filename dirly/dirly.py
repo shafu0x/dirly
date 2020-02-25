@@ -81,14 +81,14 @@ class img_dirly(dirly):
         else                        : i.save(fname)
 
 class video_dirly(dirly):
-    "Dirl videos"
+    "Dirl videos."
     def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
         super().__init__('video', i, o, ext, recurse)
 
-    def save(self, fname, i): pass
+    def save(self, fname, i): raise NotImplementedError('Video Dirly has not been implemented yet.')
 
 class txt_dirly(dirly):
-    "Dirl txt based files"
+    "Dirl txt based files."
     def __init__(self, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
         super().__init__('text', i, o, ext, recurse)
 
@@ -97,4 +97,4 @@ class txt_dirly(dirly):
         Copy everything in the file to a new file.
         Save this file inplace or in new location.
         """
-        print(fname), print(type(i))
+        raise NotImplementedError('Text Dirly has not been implemented yet.')

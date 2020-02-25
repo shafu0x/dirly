@@ -28,7 +28,7 @@ resize((300, 300))
 
 ```_f``` is a special placeholder that dirly uses internaly. Use it to tell dirly where to input your file.
 
-If you don't set the output directory `o` nothing will be saved and the items will be returned in a list. 
+If you don't set the output directory `o` your function will be applied to the elements in place. 
 
 ~~~
 from dirly import img_dirly
@@ -42,3 +42,7 @@ resized_imgs = resize((300, 300))
 ~~~
 
 This will return a list of resized PIL.Image objects.
+
+### Coming soon!
+
+Text and Video Dirly are currently being developed in will be finished very soon.
