@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 setup(name='dirly',
       version='0.1',
       description='Quickly map your function to every file in a directory (verb: to dirl).',
-      url='sharifelfouly.com',
+      url='https://github.com/SharifElfouly/dirly',
       author='Sharif Elfouly',
       author_email='selfouly@gmail.com',
       license='MIT',

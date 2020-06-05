@@ -44,10 +44,17 @@ def get_files(path, ext=None, recurse=False, exclude=None, include=None,
 
 class dirly:
     "Dirly base class. Inherit from it to create your own dirlys."
-    def __init__(self, type:str, i:Union[str, Path], o:Union[str, Path]=None, ext:List[str]=None, recurse:bool=False):
+    def __init__(self, 
+                 type:str, 
+                 i:Union[str, Path], 
+                 o:Union[str, Path]=None,
+                 ext:List[str]=None,
+                 recurse:bool=False,
+                 no_save:bool=False):
         "Apply a func to every file in `i`; optionally save them to `o`."
         self.i = Path(i)
         self.o = Path(o) if o else None
+        self.no_save = no_save
         if not ext: self.ext = set(k for k, v in mimetypes.types_map.items() if v.startswith(f'{type}/'))
         else      : self.ext = ext
         self.recurse = recurse
@@ -56,9 +63,11 @@ class dirly:
         if not dirly._check_signature(args[0]): raise Exception(f'{FILE_PLACEHOLDER} is not defined')
         def fn(*kwargs):
             fnames = get_files(self.i, self.ext, self.recurse)
-            items = [args[0](str(fname), kwargs[0]) for fname in fnames]
-            if self.o: self._save(self.o, fnames, items)
-            else     : self._save(self.i, fnames, items)
+            if len(kwargs)!=0: items = [args[0](str(fname), kwargs[0]) for fname in fnames]
+            else             : items = [args[0](str(fname)) for fname in fnames]
+            if self.o        : self._save(self.o, fnames, items)
+            elif self.no_save: print(items)
+            else             : self._save(self.i, fnames, items)
         return fn
 
     @staticmethod
@@ -82,10 +91,13 @@ class img_dirly(dirly):
 
 class video_dirly(dirly):
     "Dirl videos."
-    def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False):
-        super().__init__('video', i, o, ext, recurse)
+    def __init__(self, i: Union[str, Path], o: Union[str, Path] = None, ext: List[str] = None, recurse: bool = False, video_to_frames: bool=False):
+        if video_to_frames: no_save = True
+        else              : no_save = False
+        super().__init__('video', i, o, ext, recurse, no_save)
 
     def save(self, fname, i): raise NotImplementedError('Video Dirly has not been implemented yet.')
+
 
 class txt_dirly(dirly):
     "Dirl txt based files."
