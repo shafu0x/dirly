@@ -19,9 +19,9 @@ every single time sucks and I agree. Simply write your function to handle a sing
 from dirly import img_dirly
 
 @img_dirly(i=IN_DIR, ext=['.png'], o=OUT_DIR) 
-def resize(_fp, sz):
+def resize(_f, sz):
     """Open, resize and save files with `ext` in `IN_DIR` to `OUT_DIR`"""
-    return Image.open(_fp).resize(sz)
+    return Image.open(_f).resize(sz)
 
 resize((300, 300))
 ~~~
